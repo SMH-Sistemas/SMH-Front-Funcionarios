@@ -5,7 +5,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
-import Saidas from "./pages/Saidas";
+import LPUs from "./pages/LPUs";
+import Pedidos from "./pages/Pedidos";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -16,7 +17,7 @@ const App = () => (
     <Sonner />
     <BrowserRouter>
       <Routes>
-        {/* Rotas públicas */}
+        {/* Rotas públicas - Apenas Login e Register */}
         <Route
           path="/"
           element={
@@ -42,9 +43,17 @@ const App = () => (
           }
         />
 
-        {/* Rotas protegidas */}
+        {/* Rotas protegidas - Requerem autenticação */}
         <Route
           path="/dashboard"
+          element={
+            <ProtectedRoute requireAuth={true}>
+              <LPUs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/lpu/:lpuId"
           element={
             <ProtectedRoute requireAuth={true}>
               <Dashboard />
@@ -52,16 +61,23 @@ const App = () => (
           }
         />
         <Route
-          path="/saidas"
+          path="/pedidos"
           element={
             <ProtectedRoute requireAuth={true}>
-              <Saidas />
+              <Pedidos />
             </ProtectedRoute>
           }
         />
 
-        {/* Rota 404 */}
-        <Route path="*" element={<NotFound />} />
+        {/* Rota 404 - Protegida, redireciona para login se não autenticado */}
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute requireAuth={true}>
+              <NotFound />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   </TooltipProvider>

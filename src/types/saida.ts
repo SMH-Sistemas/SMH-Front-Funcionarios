@@ -1,17 +1,19 @@
-export type SaidaStatus = 
-  | "rascunho" 
-  | "reservado" 
-  | "em_transporte" 
-  | "entregue" 
-  | "cancelado" 
+export type SaidaStatus =
+  | "rascunho"
+  | "reservado"
+  | "em_transporte"
+  | "entregue"
+  | "cancelado"
   | "estornado";
 
 export type Cliente = {
-  id: string;
+  id?: string;
   nome: string;
+  sobrenome: string;
   cpfCnpj: string;
   telefone: string;
   email: string;
+  senha?: string; // Senha para criação do cliente
   endereco: {
     rua: string;
     numero: string;
@@ -34,6 +36,20 @@ export type ItemSaida = {
   quantidade: number;
   quantidadeDisponivel: number;
   subtotal: number;
+  productType?: "PRODUCT" | "SERVICE"; // Tipo do produto/serviço
+  taxId?: number; // ID do imposto aplicado
+  taxPercentage?: number; // Porcentagem do imposto
+  taxValue?: number; // Valor do imposto calculado
+};
+
+export type VendedorPedido = {
+  id?: string;
+  nome: string;
+  sobrenome: string;
+  email: string;
+  senha?: string; // Senha para criação do vendedor
+  telefone?: string;
+  comissao: number; // Porcentagem de comissão sobre o pedido
 };
 
 export type Saida = {

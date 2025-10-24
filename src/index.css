@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 210 24% 16%;
 
     --card: 0 0% 100%;
@@ -12,44 +11,52 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 24% 16%;
 
-    /* SMH Navy Blue - Primary Brand Color */
-    --primary: 210 45% 17%;
+    /* SMH Navy Blue - Primary Brand Color #1e3a5f */
+    --primary: 210 52% 24%;
     --primary-foreground: 0 0% 100%;
-    
-    /* SMH Red - Accent Color */
-    --secondary: 356 85% 51%;
+
+    /* SMH Red - Accent Color #e53e3e */
+    --secondary: 0 79% 57%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 20% 96%;
     --muted-foreground: 210 12% 45%;
 
-    --accent: 356 85% 51%;
+    --accent: 0 79% 57%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 79% 57%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 210 45% 17%;
+    --border: 210 20% 88%;
+    --input: 210 20% 92%;
+    --ring: 210 52% 24%;
 
     --radius: 0.5rem;
 
     /* Sidebar - SMH Navy Theme */
-    --sidebar-background: 210 45% 17%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 356 85% 51%;
+    --sidebar-background: 210 52% 24%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 79% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 22%;
+    --sidebar-accent: 210 52% 30%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 40% 22%;
-    --sidebar-ring: 356 85% 51%;
+    --sidebar-border: 210 52% 20%;
+    --sidebar-ring: 0 79% 57%;
 
     /* Custom gradients and shadows */
-    --gradient-primary: linear-gradient(135deg, hsl(210 45% 17%) 0%, hsl(210 40% 22%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(356 85% 51%) 0%, hsl(356 75% 45%) 100%);
-    --shadow-elegant: 0 4px 12px -2px hsl(210 45% 17% / 0.15);
-    --shadow-strong: 0 8px 24px -4px hsl(210 45% 17% / 0.25);
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(210 52% 24%) 0%,
+      hsl(210 52% 30%) 100%
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(0 79% 57%) 0%,
+      hsl(0 79% 50%) 100%
+    );
+    --shadow-elegant: 0 4px 12px -2px hsl(210 52% 24% / 0.15);
+    --shadow-strong: 0 8px 24px -4px hsl(210 52% 24% / 0.25);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -63,33 +70,33 @@
     --popover: 210 40% 14%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 210 45% 17%;
+    --primary: 210 52% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 356 85% 51%;
+    --secondary: 0 79% 57%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 35% 20%;
     --muted-foreground: 210 12% 65%;
 
-    --accent: 356 85% 51%;
+    --accent: 0 79% 57%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 79% 57%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 210 35% 20%;
     --input: 210 35% 20%;
-    --ring: 356 85% 51%;
+    --ring: 0 79% 57%;
 
     --sidebar-background: 210 45% 12%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 356 85% 51%;
+    --sidebar-primary: 0 79% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 40% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 210 40% 18%;
-    --sidebar-ring: 356 85% 51%;
+    --sidebar-ring: 0 79% 57%;
   }
 
   * {
@@ -104,10 +111,10 @@
     font-weight: 400;
   }
 
-    .bg-background {
+  .bg-background {
     background-color: hsl(var(--background)) !important;
   }
-  
+
   .text-foreground {
     color: hsl(var(--foreground)) !important;
   }

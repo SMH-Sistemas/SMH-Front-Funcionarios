@@ -10,27 +10,27 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Percent } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
-type DiscountModalProps = {
+type IncreasePriceModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (discount: number) => void;
+  onSave: (increasePercentage: number) => void;
   productsCount: number;
 };
 
-export const DiscountModal = ({
+export const IncreasePriceModal = ({
   open,
   onOpenChange,
   onSave,
   productsCount,
-}: DiscountModalProps) => {
-  const [discount, setDiscount] = useState(0);
+}: IncreasePriceModalProps) => {
+  const [increasePercentage, setIncreasePercentage] = useState(0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(discount);
-    setDiscount(0);
+    onSave(increasePercentage);
+    setIncreasePercentage(0);
   };
 
   return (
@@ -38,13 +38,13 @@ export const DiscountModal = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-              <Percent className="h-5 w-5 text-secondary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+              <TrendingUp className="h-5 w-5 text-green-600" />
             </div>
-            Aplicar Desconto
+            Aumentar Preço
           </DialogTitle>
           <DialogDescription>
-            Aplicar desconto para {productsCount}{" "}
+            Aumentar preço para {productsCount}{" "}
             {productsCount === 1
               ? "produto selecionado"
               : "produtos selecionados"}
@@ -53,25 +53,28 @@ export const DiscountModal = ({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="discount" className="text-sm font-semibold">
-                Percentual de Desconto
+              <Label htmlFor="increase" className="text-sm font-semibold">
+                Percentual de Aumento
               </Label>
               <div className="relative">
                 <Input
-                  id="discount"
+                  id="increase"
                   type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(parseInt(e.target.value))}
+                  step="0.01"
+                  value={increasePercentage}
+                  onChange={(e) =>
+                    setIncreasePercentage(parseFloat(e.target.value) || 0)
+                  }
                   min="0"
-                  max="100"
+                  max="1000"
                   required
                   className="pr-8 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                   placeholder="0"
                 />
-                <Percent className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <TrendingUp className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               </div>
               <p className="text-xs text-muted-foreground">
-                Insira um valor entre 0 e 100
+                Insira o percentual de aumento (ex: 10 para 10%)
               </p>
             </div>
           </div>
@@ -86,9 +89,9 @@ export const DiscountModal = ({
             </Button>
             <Button
               type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg"
             >
-              Aplicar Desconto
+              Aumentar Preço
             </Button>
           </DialogFooter>
         </form>
@@ -96,3 +99,5 @@ export const DiscountModal = ({
     </Dialog>
   );
 };
+
+

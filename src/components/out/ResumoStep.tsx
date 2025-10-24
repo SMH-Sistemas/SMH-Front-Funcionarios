@@ -1,10 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Cliente, ItemSaida } from "@/types/saida";
+import { Cliente, ItemSaida, VendedorPedido } from "@/types/saida";
 
 type ResumoStepProps = {
   cliente: Cliente;
   itens: ItemSaida[];
+  vendedor?: VendedorPedido | null;
+  valorTotalPedido: number; // Já calculado incluindo impostos
   dadosEnvio: {
     enderecoEntrega: Cliente["endereco"];
     transportadora?: string;
@@ -14,17 +16,28 @@ type ResumoStepProps = {
   };
 };
 
-export const ResumoStep = ({ cliente, itens, dadosEnvio }: ResumoStepProps) => {
+export const ResumoStep = ({
+  cliente,
+  itens,
+  vendedor,
+  valorTotalPedido,
+  dadosEnvio,
+}: ResumoStepProps) => {
   const subtotal = itens.reduce((sum, item) => sum + item.subtotal, 0);
-  const impostos = subtotal * 0.15; // Mock de impostos (15%)
-  const total = subtotal + impostos;
+  const impostosTotais = itens.reduce(
+    (sum, item) => sum + ((item as ItemSaida).taxValue || 0),
+    0
+  );
+  const total = valorTotalPedido;
 
   return (
     <div className="space-y-6">
       <Card className="p-4">
         <h3 className="font-semibold mb-2">Cliente</h3>
         <div className="text-sm space-y-1">
-          <p className="font-medium">{cliente.nome}</p>
+          <p className="font-medium">
+            {cliente.nome} {cliente.sobrenome}
+          </p>
           <p className="text-muted-foreground">{cliente.cpfCnpj}</p>
           <p className="text-muted-foreground">
             {cliente.telefone} • {cliente.email}
@@ -32,11 +45,30 @@ export const ResumoStep = ({ cliente, itens, dadosEnvio }: ResumoStepProps) => {
         </div>
       </Card>
 
+      {vendedor && (
+        <Card className="p-4">
+          <h3 className="font-semibold mb-2">Vendedor</h3>
+          <div className="text-sm space-y-1">
+            <p className="font-medium">
+              {vendedor.nome} {vendedor.sobrenome}
+            </p>
+            <p className="text-muted-foreground">{vendedor.email}</p>
+            {vendedor.telefone && (
+              <p className="text-muted-foreground">{vendedor.telefone}</p>
+            )}
+            <p className="text-primary font-semibold">
+              Comissão: {vendedor.comissao}% sobre o total
+            </p>
+          </div>
+        </Card>
+      )}
+
       <Card className="p-4">
         <h3 className="font-semibold mb-2">Endereço de Entrega</h3>
         <div className="text-sm text-muted-foreground">
           <p>
-            {dadosEnvio.enderecoEntrega.rua}, {dadosEnvio.enderecoEntrega.numero}
+            {dadosEnvio.enderecoEntrega.rua},{" "}
+            {dadosEnvio.enderecoEntrega.numero}
             {dadosEnvio.enderecoEntrega.complemento &&
               ` - ${dadosEnvio.enderecoEntrega.complemento}`}
           </p>
@@ -114,9 +146,9 @@ export const ResumoStep = ({ cliente, itens, dadosEnvio }: ResumoStepProps) => {
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Impostos (15%):</span>
+            <span className="text-muted-foreground">Impostos:</span>
             <span>
-              {impostos.toLocaleString("pt-BR", {
+              {impostosTotais.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
               })}

@@ -1,11 +1,93 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Package, Loader2, Check } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Package,
+  Loader2,
+  Check,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRegister } from "@/hooks/useAuth";
+import { toast } from "sonner";
+
+// Função para formatar telefone: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+const formatPhoneNumber = (value: string): string => {
+  const numbers = value.replace(/\D/g, "");
+
+  if (numbers.length <= 2) {
+    return numbers;
+  } else if (numbers.length <= 6) {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+  } else if (numbers.length <= 10) {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(
+      6
+    )}`;
+  } else {
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+      7,
+      11
+    )}`;
+  }
+};
+
+// Função para formatar CPF: XXX.XXX.XXX-XX
+const formatCPF = (value: string): string => {
+  const numbers = value.replace(/\D/g, "");
+
+  if (numbers.length <= 3) {
+    return numbers;
+  } else if (numbers.length <= 6) {
+    return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+  } else if (numbers.length <= 9) {
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+  } else {
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(
+      6,
+      9
+    )}-${numbers.slice(9, 11)}`;
+  }
+};
+
+// Função para formatar CNPJ: XX.XXX.XXX/XXXX-XX
+const formatCNPJ = (value: string): string => {
+  const numbers = value.replace(/\D/g, "");
+
+  if (numbers.length <= 2) {
+    return numbers;
+  } else if (numbers.length <= 5) {
+    return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+  } else if (numbers.length <= 8) {
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;
+  } else if (numbers.length <= 12) {
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(
+      5,
+      8
+    )}/${numbers.slice(8)}`;
+  } else {
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(
+      5,
+      8
+    )}/${numbers.slice(8, 12)}-${numbers.slice(12, 14)}`;
+  }
+};
+
+// Função para formatar CPF ou CNPJ automaticamente
+const formatFiscalIdentification = (value: string): string => {
+  const numbers = value.replace(/\D/g, "");
+
+  // Se tem mais de 11 dígitos, formata como CNPJ
+  if (numbers.length > 11) {
+    return formatCNPJ(value);
+  } else {
+    return formatCPF(value);
+  }
+};
 
 const Register = () => {
   const registerMutation = useRegister();
@@ -13,9 +95,11 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    surname: "",
     email: "",
     password: "",
     confirmPassword: "",
+    phoneNumber: "",
     acceptTerms: false,
   });
 
@@ -23,10 +107,22 @@ const Register = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+
+    let formattedValue = value;
+
+    // Aplicar máscaras de formatação
+    if (name === "phoneNumber") {
+      formattedValue = formatPhoneNumber(value);
+    } else if (name === "fiscalIdentification") {
+      formattedValue = formatFiscalIdentification(value);
+    }
+
+    const newFormData = {
+      ...formData,
+      [name]: type === "checkbox" ? checked : formattedValue,
+    };
+
+    setFormData(newFormData);
 
     // Limpar erro quando usuário começar a digitar
     if (errors[name]) {
@@ -34,6 +130,28 @@ const Register = () => {
         ...prev,
         [name]: "",
       }));
+    }
+
+    // Validação em tempo real para confirmação de senha
+    if (name === "confirmPassword" || name === "password") {
+      const password =
+        name === "password" ? formattedValue : newFormData.password;
+      const confirmPassword =
+        name === "confirmPassword"
+          ? formattedValue
+          : newFormData.confirmPassword;
+
+      if (confirmPassword && password !== confirmPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "As senhas não coincidem",
+        }));
+      } else if (confirmPassword && password === confirmPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "",
+        }));
+      }
     }
   };
 
@@ -44,6 +162,12 @@ const Register = () => {
       newErrors.name = "Nome é obrigatório";
     } else if (formData.name.trim().length < 2) {
       newErrors.name = "Nome deve ter pelo menos 2 caracteres";
+    }
+
+    if (!formData.surname.trim()) {
+      newErrors.surname = "Sobrenome é obrigatório";
+    } else if (formData.surname.trim().length < 2) {
+      newErrors.surname = "Sobrenome deve ter pelo menos 2 caracteres";
     }
 
     if (!formData.email.trim()) {
@@ -64,6 +188,15 @@ const Register = () => {
       newErrors.confirmPassword = "Senhas não coincidem";
     }
 
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Telefone é obrigatório";
+    } else {
+      const numbers = formData.phoneNumber.replace(/\D/g, "");
+      if (numbers.length < 10 || numbers.length > 11) {
+        newErrors.phoneNumber = "Telefone deve ter 10 ou 11 dígitos";
+      }
+    }
+
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = "Você deve aceitar os termos de uso";
     }
@@ -76,15 +209,48 @@ const Register = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      // Mostrar mensagem de erro visual
+      const errorMessages = Object.values(errors).filter(Boolean);
+      if (errorMessages.length > 0) {
+        toast.error("Por favor, corrija os erros no formulário", {
+          description: errorMessages[0],
+          duration: 4000,
+        });
+
+        // Scroll para o primeiro erro
+        const firstErrorField = Object.keys(errors).find((key) => errors[key]);
+        if (firstErrorField) {
+          const element = document.getElementById(firstErrorField);
+          element?.scrollIntoView({ behavior: "smooth", block: "center" });
+          element?.focus();
+        }
+      }
       return;
     }
 
+    // Remover formatação antes de enviar para o backend
     registerMutation.mutate({
       name: formData.name,
+      surname: formData.surname,
       email: formData.email,
       password: formData.password,
+      phoneNumber: formData.phoneNumber.replace(/\D/g, ""),
     });
   };
+
+  // Verificar se há erros ou campos obrigatórios vazios
+  const hasErrors = Object.values(errors).some((error) => error !== "");
+  const isFormIncomplete =
+    !formData.name.trim() ||
+    !formData.surname.trim() ||
+    !formData.email.trim() ||
+    !formData.password ||
+    !formData.confirmPassword ||
+    !formData.phoneNumber.trim() ||
+    !formData.acceptTerms;
+
+  const isSubmitDisabled =
+    hasErrors || isFormIncomplete || registerMutation.isPending;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
@@ -108,20 +274,63 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
-                Nome completo
+                Nome
               </Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Seu nome completo"
+                placeholder="Seu nome"
                 value={formData.name}
                 onChange={handleInputChange}
+                maxLength={50}
                 className={`h-11 ${errors.name ? "border-destructive" : ""}`}
                 disabled={registerMutation.isPending}
               />
               {errors.name && (
                 <p className="text-sm text-destructive">{errors.name}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="surname" className="text-sm font-medium">
+                Sobrenome
+              </Label>
+              <Input
+                id="surname"
+                name="surname"
+                type="text"
+                placeholder="Seu sobrenome"
+                value={formData.surname}
+                onChange={handleInputChange}
+                maxLength={50}
+                className={`h-11 ${errors.surname ? "border-destructive" : ""}`}
+                disabled={registerMutation.isPending}
+              />
+              {errors.surname && (
+                <p className="text-sm text-destructive">{errors.surname}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber" className="text-sm font-medium">
+                Telefone
+              </Label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="tel"
+                placeholder="(00) 00000-0000"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                maxLength={15}
+                className={`h-11 ${
+                  errors.phoneNumber ? "border-destructive" : ""
+                }`}
+                disabled={registerMutation.isPending}
+              />
+              {errors.phoneNumber && (
+                <p className="text-sm text-destructive">{errors.phoneNumber}</p>
               )}
             </div>
 
@@ -136,6 +345,7 @@ const Register = () => {
                 placeholder="seu@email.com"
                 value={formData.email}
                 onChange={handleInputChange}
+                maxLength={100}
                 className={`h-11 ${errors.email ? "border-destructive" : ""}`}
                 disabled={registerMutation.isPending}
               />
@@ -193,31 +403,57 @@ const Register = () => {
                   placeholder="Digite a senha novamente"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`h-11 pr-10 ${
-                    errors.confirmPassword ? "border-destructive" : ""
+                  className={`h-11 pr-20 ${
+                    errors.confirmPassword
+                      ? "border-destructive"
+                      : formData.confirmPassword &&
+                        formData.password &&
+                        formData.password === formData.confirmPassword
+                      ? "border-green-500 focus-visible:ring-green-500"
+                      : ""
                   }`}
                   disabled={registerMutation.isPending}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-11 w-10 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={registerMutation.isPending}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                <div className="absolute right-0 top-0 h-11 flex items-center gap-1 pr-1">
+                  {formData.confirmPassword && formData.password && (
+                    <>
+                      {formData.password === formData.confirmPassword ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5 text-destructive" />
+                      )}
+                    </>
                   )}
-                </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-11 w-10 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={registerMutation.isPending}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
                   {errors.confirmPassword}
                 </p>
               )}
+              {!errors.confirmPassword &&
+                formData.confirmPassword &&
+                formData.password === formData.confirmPassword && (
+                  <p className="text-sm text-green-600 flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" />
+                    As senhas coincidem
+                  </p>
+                )}
             </div>
 
             <div className="space-y-2">
@@ -254,8 +490,13 @@ const Register = () => {
 
             <Button
               type="submit"
-              className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-              disabled={registerMutation.isPending}
+              className="w-full h-11 bg-[#1B2B3A] hover:bg-[#16222D] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSubmitDisabled}
+              title={
+                isSubmitDisabled && !registerMutation.isPending
+                  ? "Preencha todos os campos corretamente para continuar"
+                  : ""
+              }
             >
               {registerMutation.isPending ? (
                 <>
@@ -264,27 +505,35 @@ const Register = () => {
                 </>
               ) : (
                 <>
-                  <Check className="mr-2 h-4 w-4" />
                   Criar conta
                 </>
               )}
             </Button>
+
+            {isSubmitDisabled &&
+              !registerMutation.isPending &&
+              (hasErrors || isFormIncomplete) && (
+                <div className="text-center">
+                  <p className="text-sm text-amber-600 flex items-center justify-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {hasErrors
+                      ? "Corrija os erros antes de continuar"
+                      : "Preencha todos os campos obrigatórios"}
+                  </p>
+                </div>
+              )}
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-3">
               Já tem uma conta?{" "}
-              <Link
-                to="/login"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                Fazer login
-              </Link>
+              <span className="text-primary hover:text-primary/80 font-medium">
+                <Link to="/login">Fazer login</Link>
+              </span>
             </p>
           </div>
         </Card>
 
-        {/* Footer */}
         <div className="text-center mt-8 text-sm text-muted-foreground">
           <p>© 2025 SMH Sistemas. Todos os direitos reservados.</p>
         </div>

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Cliente, ItemSaida, Saida } from "@/types/saida";
+import type { OrderRequestDTO } from "@/services/api.order";
 import { ClienteStep } from "./ClienteStep";
 import { ItensStep } from "./ItensStep";
 import { EnvioStep } from "./EnvioStep";
@@ -18,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 type NovaSaidaModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (saida: Saida) => void;
+  onSave: ((saida: Saida) => void) | ((orderData: OrderRequestDTO) => void);
 };
 
 export const NovaSaidaModal = ({
@@ -86,7 +87,11 @@ export const NovaSaidaModal = ({
           status,
           data: new Date().toISOString(),
           responsavel: "Usuário Atual",
-          observacao: `Saída ${status === "rascunho" ? "criada como rascunho" : "criada e reservada"}`,
+          observacao: `Saída ${
+            status === "rascunho"
+              ? "criada como rascunho"
+              : "criada e reservada"
+          }`,
         },
       ],
       logs: [
@@ -103,7 +108,9 @@ export const NovaSaidaModal = ({
     onSave(novaSaida);
     toast({
       title: "Sucesso!",
-      description: `Saída ${novaSaida.numero} ${status === "rascunho" ? "salva como rascunho" : "reservada com sucesso"}`,
+      description: `Saída ${novaSaida.numero} ${
+        status === "rascunho" ? "salva como rascunho" : "reservada com sucesso"
+      }`,
     });
     handleClose();
   };
@@ -128,7 +135,7 @@ export const NovaSaidaModal = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Nova Saída de Produtos</DialogTitle>
+          <DialogTitle>Novo Pedido</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -147,7 +154,9 @@ export const NovaSaidaModal = ({
                   </div>
                   <span
                     className={`text-sm font-medium ${
-                      step >= s.number ? "text-foreground" : "text-muted-foreground"
+                      step >= s.number
+                        ? "text-foreground"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {s.title}
@@ -169,9 +178,7 @@ export const NovaSaidaModal = ({
               onSelectCliente={handleSelectCliente}
             />
           )}
-          {step === 2 && (
-            <ItensStep itens={itens} onUpdateItens={setItens} />
-          )}
+          {step === 2 && <ItensStep itens={itens} onUpdateItens={setItens} />}
           {step === 3 && selectedCliente && (
             <EnvioStep
               cliente={selectedCliente}
@@ -201,7 +208,10 @@ export const NovaSaidaModal = ({
               <Button onClick={handleNext}>Próximo</Button>
             ) : (
               <>
-                <Button variant="outline" onClick={() => handleSave("rascunho")}>
+                <Button
+                  variant="outline"
+                  onClick={() => handleSave("rascunho")}
+                >
                   Salvar Rascunho
                 </Button>
                 <Button onClick={() => handleSave("reservado")}>

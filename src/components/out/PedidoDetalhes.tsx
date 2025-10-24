@@ -10,14 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Saida } from "@/types/saida";
+import type { OrderResponseDTO } from "@/services/api.order";
 import { Timeline } from "./Timeline";
-import {
-  FileText,
-  Mail,
-  RotateCcw,
-  X as XIcon,
-  Download,
-} from "lucide-react";
+import { FileText, Mail, RotateCcw, X as XIcon, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,11 +26,12 @@ import {
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-type SaidaDetalhesProps = {
-  saida: Saida | null;
+type PedidoDetalhesProps = {
+  saida?: Saida | null;
+  order?: OrderResponseDTO | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateStatus: (id: string, status: Saida["status"]) => void;
+  onUpdateStatus: (id: any, status: any) => void;
 };
 
 const statusBadgeVariant = {
@@ -56,12 +52,12 @@ const statusLabel = {
   estornado: "Estornado",
 };
 
-export const SaidaDetalhes = ({
+export const PedidoDetalhes = ({
   saida,
   open,
   onOpenChange,
   onUpdateStatus,
-}: SaidaDetalhesProps) => {
+}: PedidoDetalhesProps) => {
   const { toast } = useToast();
   const [showCancelarDialog, setShowCancelarDialog] = useState(false);
   const [showEstornarDialog, setShowEstornarDialog] = useState(false);
@@ -115,7 +111,10 @@ export const SaidaDetalhes = ({
                   {new Date(saida.data).toLocaleString("pt-BR")}
                 </p>
               </div>
-              <Badge variant={statusBadgeVariant[saida.status]} className="text-sm">
+              <Badge
+                variant={statusBadgeVariant[saida.status]}
+                className="text-sm"
+              >
                 {statusLabel[saida.status]}
               </Badge>
             </div>
@@ -126,7 +125,11 @@ export const SaidaDetalhes = ({
               <Download className="h-4 w-4 mr-2" />
               Gerar PDF
             </Button>
-            <Button variant="outline" size="sm" onClick={handleEnviarNotificacao}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEnviarNotificacao}
+            >
               <Mail className="h-4 w-4 mr-2" />
               Enviar Notificação
             </Button>
@@ -166,7 +169,9 @@ export const SaidaDetalhes = ({
                 <h3 className="font-semibold mb-3">Cliente</h3>
                 <div className="space-y-1 text-sm">
                   <p className="font-medium">{saida.cliente.nome}</p>
-                  <p className="text-muted-foreground">{saida.cliente.cpfCnpj}</p>
+                  <p className="text-muted-foreground">
+                    {saida.cliente.cpfCnpj}
+                  </p>
                   <p className="text-muted-foreground">
                     {saida.cliente.telefone} • {saida.cliente.email}
                   </p>
@@ -270,7 +275,10 @@ export const SaidaDetalhes = ({
               <Card className="p-4">
                 <div className="space-y-4">
                   {saida.logs.map((log) => (
-                    <div key={log.id} className="border-l-2 border-primary pl-4">
+                    <div
+                      key={log.id}
+                      className="border-l-2 border-primary pl-4"
+                    >
                       <div className="flex items-center justify-between mb-1">
                         <p className="font-semibold">{log.acao}</p>
                         <span className="text-sm text-muted-foreground">
@@ -290,7 +298,10 @@ export const SaidaDetalhes = ({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showCancelarDialog} onOpenChange={setShowCancelarDialog}>
+      <AlertDialog
+        open={showCancelarDialog}
+        onOpenChange={setShowCancelarDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Cancelar Saída</AlertDialogTitle>
@@ -308,7 +319,10 @@ export const SaidaDetalhes = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showEstornarDialog} onOpenChange={setShowEstornarDialog}>
+      <AlertDialog
+        open={showEstornarDialog}
+        onOpenChange={setShowEstornarDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Estornar Saída</AlertDialogTitle>

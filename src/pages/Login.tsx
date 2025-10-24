@@ -119,7 +119,7 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+              className="w-full h-11 bg-[#1B2B3A] hover:bg-[#16222D] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
@@ -134,14 +134,8 @@ const Login = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Não tem uma conta?{" "}
-              <Link
-                to="/register"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                Criar conta
-              </Link>
+            <p className="text-sm text-muted-foreground mb-3">
+              Não tem uma conta? <span className="text-primary hover:text-primary/80 font-medium"><Link to="/register">Criar conta</Link></span>
             </p>
           </div>
         </Card>
