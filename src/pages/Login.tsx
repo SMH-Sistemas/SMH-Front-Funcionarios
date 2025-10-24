@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/hooks/useAuth";
+import imgLogo from "../assets/smh_sistemas_logo.jpg";
 
 const Login = () => {
   const loginMutation = useLogin();
@@ -38,7 +39,11 @@ const Login = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary/80 shadow-lg">
-              <Package className="h-8 w-8 text-primary-foreground" />
+              <img
+                src={imgLogo}
+                alt="SMH Sistemas Logo"
+                className="h-full w-full object-contain rounded-2xl"
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-primary mb-2">SMH Sistemas</h1>

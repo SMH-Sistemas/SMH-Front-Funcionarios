@@ -8,6 +8,7 @@ import { NovoPedidoModal } from "@/components/out/NovoPedidoModal";
 import { PedidoDetalhesModal } from "@/components/out/PedidoDetalhesModal";
 import { EnviarPropostaModal } from "@/components/out/EnviarPropostaModal";
 import { useNavigate } from "react-router-dom";
+import imgLogo from "../assets/smh_sistemas_logo.jpg";
 import {
   Select,
   SelectContent,
@@ -100,7 +101,11 @@ const Pedidos = () => {
             </Button>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-primary to-primary/80">
-                <FileText className="h-5 w-5 text-primary-foreground" />
+                <img
+                src={imgLogo}
+                alt="SMH Sistemas Logo"
+                className="h-full w-full object-contain rounded-2xl"
+              />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-primary">

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import imgLogo from "../assets/smh_sistemas_logo.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -11,7 +12,11 @@ const Index = () => {
       
       <div className="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary shadow-2xl">
-          <Package className="h-10 w-10 text-secondary-foreground" />
+          <img
+                src={imgLogo}
+                alt="SMH Sistemas Logo"
+                className="h-full w-full object-contain rounded-2xl"
+              />
         </div>
         
         <div className="space-y-4">
