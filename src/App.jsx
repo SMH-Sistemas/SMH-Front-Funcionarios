@@ -6,7 +6,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import LPUs from "./pages/LPUs";
-import Pedidos from "./pages/Pedidos";
+import Pedidos from "./pages/Order";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
