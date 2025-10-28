@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Cliente, ItemSaida, VendedorPedido } from "@/types/saida";
+import { FileText, DollarSign } from "lucide-react";
 
 type ResumoStepProps = {
   cliente: Cliente;
@@ -105,58 +106,104 @@ export const ResumoStep = ({
         </Card>
       )}
 
+      {/* Itens do Pedido */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-3">Itens da Saída</h3>
-        <div className="space-y-2">
-          {itens.map((item) => (
-            <div
-              key={item.id}
-              className="flex justify-between text-sm pb-2 border-b last:border-0"
-            >
-              <div className="flex-1">
-                <p className="font-medium">{item.nome}</p>
-                <p className="text-muted-foreground text-xs">
-                  SKU: {item.sku} • {item.quantidade} {item.unidade} x{" "}
-                  {item.precoUnitario.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </p>
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Itens do Pedido
+        </h3>
+        <div className="space-y-3">
+          {itens.map((item) => {
+            const itemWithTax = item as ItemSaida;
+            return (
+              <div
+                key={item.id}
+                className="p-3 rounded-lg bg-muted/30 space-y-2"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="font-semibold">{item.nome}</p>
+                    <p className="text-muted-foreground text-xs">
+                      SKU: {item.sku}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold">
+                      {item.subtotal.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Qtd:</span>{" "}
+                    <span className="font-medium">{item.quantidade}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Unit.:</span>{" "}
+                    <span className="font-medium">
+                      {item.precoUnitario.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
+                  </div>
+                  {itemWithTax.taxValue && itemWithTax.taxValue > 0 && (
+                    <div>
+                      <span className="text-muted-foreground">Imposto:</span>{" "}
+                      <span className="font-medium text-orange-600">
+                        {itemWithTax.taxValue.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {itemWithTax.taxPercentage && itemWithTax.taxPercentage > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    Alíquota: {itemWithTax.taxPercentage}%
+                  </div>
+                )}
               </div>
-              <p className="font-semibold">
-                {item.subtotal.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
+      </Card>
 
-        <Separator className="my-4" />
-
+      {/* Resumo Financeiro */}
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <DollarSign className="h-5 w-5" />
+          Resumo Financeiro
+        </h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Subtotal:</span>
-            <span>
+            <span className="font-semibold">
               {subtotal.toLocaleString("pt-BR", {
                 style: "currency",
                 currency: "BRL",
               })}
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Impostos:</span>
-            <span>
-              {impostosTotais.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </span>
-          </div>
+          {impostosTotais > 0 && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Total de Impostos:</span>
+              <span className="font-semibold text-orange-600">
+                +{" "}
+                {impostosTotais.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
+            </div>
+          )}
           <Separator className="my-2" />
           <div className="flex justify-between text-lg font-bold">
-            <span>Total:</span>
+            <span>Valor Total:</span>
             <span className="text-primary">
               {total.toLocaleString("pt-BR", {
                 style: "currency",

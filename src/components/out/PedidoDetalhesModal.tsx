@@ -172,16 +172,27 @@ export const PedidoDetalhesModal = ({
               <CardContent>
                 <div className="space-y-3">
                   {order.items.map((item, index) => (
-                    <div key={item.id} className="pb-3 border-b last:border-0">
+                    <div
+                      key={item.id}
+                      className="p-3 rounded-lg bg-muted/30 space-y-2"
+                    >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <p className="font-semibold">{item.productName}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                              #{index + 1}
+                            </span>
+                            <p className="font-semibold">{item.productName}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
                             NCM: {item.productNcm}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">
+                          <p className="text-xs text-muted-foreground">
+                            Subtotal
+                          </p>
+                          <p className="font-semibold text-lg">
                             {item.subtotal.toLocaleString("pt-BR", {
                               style: "currency",
                               currency: "BRL",
@@ -189,27 +200,51 @@ export const PedidoDetalhesModal = ({
                           </p>
                         </div>
                       </div>
-                      <div className="mt-2 grid grid-cols-4 gap-2 text-xs text-muted-foreground">
-                        <div>
-                          <span className="font-medium">Qtd:</span>{" "}
-                          {item.quantity}
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div className="p-2 bg-background rounded">
+                          <p className="text-xs text-muted-foreground">
+                            Quantidade
+                          </p>
+                          <p className="font-medium">{item.quantity}</p>
                         </div>
-                        <div>
-                          <span className="font-medium">Preço Unit.:</span>{" "}
-                          {item.unitPrice.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </div>
-                        {item.taxValue > 0 && (
-                          <div>
-                            <span className="font-medium">Imposto:</span>{" "}
-                            {item.taxValue.toLocaleString("pt-BR", {
+                        <div className="p-2 bg-background rounded">
+                          <p className="text-xs text-muted-foreground">
+                            Preço Unitário
+                          </p>
+                          <p className="font-medium">
+                            {item.unitPrice.toLocaleString("pt-BR", {
                               style: "currency",
                               currency: "BRL",
                             })}
-                          </div>
-                        )}
+                          </p>
+                        </div>
+                        <div
+                          className={`p-2 rounded ${
+                            item.taxValue > 0
+                              ? "bg-orange-50 border border-orange-200"
+                              : "bg-background"
+                          }`}
+                        >
+                          <p
+                            className={`text-xs ${
+                              item.taxValue > 0
+                                ? "text-orange-700"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            Imposto
+                          </p>
+                          <p
+                            className={`font-medium ${
+                              item.taxValue > 0 ? "text-orange-600" : ""
+                            }`}
+                          >
+                            {(item.taxValue || 0).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -283,42 +318,139 @@ export const PedidoDetalhesModal = ({
 
           {/* Aba Financeiro */}
           <TabsContent value="financeiro" className="space-y-4">
+            {/* Resumo por Item */}
             <Card>
               <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Itens do Pedido
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {order.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3 rounded-lg bg-muted/30 space-y-2"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-semibold">{item.productName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          NCM: {item.productNcm}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {item.subtotal.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Qtd:</span>
+                          <span className="font-medium">{item.quantity}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Unit.:</span>
+                          <span className="font-medium">
+                            {item.unitPrice.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Subtotal:
+                          </span>
+                          <span className="font-medium">
+                            {item.subtotal.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span
+                            className={
+                              item.taxValue > 0
+                                ? "text-orange-600"
+                                : "text-muted-foreground"
+                            }
+                          >
+                            Imposto:
+                          </span>
+                          <span
+                            className={`font-medium ${
+                              item.taxValue > 0 ? "text-orange-600" : ""
+                            }`}
+                          >
+                            {(item.taxValue || 0).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {item.taxValue > 0 && (
+                      <div className="pt-2 border-t border-orange-200">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-orange-700 font-medium">
+                            Total com Imposto:
+                          </span>
+                          <span className="font-semibold text-orange-600">
+                            {(
+                              item.subtotal + (item.taxValue || 0)
+                            ).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Resumo Financeiro */}
+            <Card className="border-primary/20">
+              <CardHeader className="bg-primary/5">
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
                   Resumo Financeiro
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between text-sm pb-2 border-b"
-                    >
-                      <span>
-                        {item.productName} (x{item.quantity})
-                      </span>
-                      <span>
-                        {item.subtotal.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </span>
-                    </div>
-                  ))}
+              <CardContent className="space-y-3 pt-6">
+                {/* Subtotal */}
+                <div className="flex justify-between text-base">
+                  <span className="text-muted-foreground">Subtotal:</span>
+                  <span className="font-semibold">
+                    {order.items
+                      .reduce((sum, item) => sum + item.subtotal, 0)
+                      .toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                  </span>
                 </div>
-
-                <Separator />
 
                 {/* Total de Impostos */}
                 {order.items.some((item) => item.taxValue > 0) && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-base">
                     <span className="text-muted-foreground">
                       Total de Impostos:
                     </span>
-                    <span>
+                    <span className="font-semibold text-orange-600">
+                      +{" "}
                       {order.items
                         .reduce((sum, item) => sum + item.taxValue, 0)
                         .toLocaleString("pt-BR", {
@@ -332,7 +464,7 @@ export const PedidoDetalhesModal = ({
                 <Separator />
 
                 {/* Valor Total */}
-                <div className="flex justify-between text-lg font-bold">
+                <div className="flex justify-between text-xl font-bold">
                   <span>Valor Total:</span>
                   <span className="text-primary">
                     {order.totalAmount.toLocaleString("pt-BR", {
