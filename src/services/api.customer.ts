@@ -103,7 +103,6 @@ class ApiCustomerService {
         success: false,
         data: [] as CustomerDTO[],
         message,
-        error: message,
       };
     }
   }
@@ -125,7 +124,6 @@ class ApiCustomerService {
         success: false,
         data: {} as CustomerDTO,
         message,
-        error: message,
       };
     }
   }
