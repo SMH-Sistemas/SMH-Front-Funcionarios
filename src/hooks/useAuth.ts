@@ -176,9 +176,12 @@ export const useLogin = () => {
       // Redirecionar para dashboard
       navigate("/dashboard", { replace: true });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("[LOGIN] Erro no login:", error);
-      toast.error("Credenciais inválidas. Tente novamente.");
+      // Usar a mensagem de erro que vem da API
+      const errorMessage =
+        error?.message || "Erro ao fazer login. Tente novamente.";
+      toast.error(errorMessage);
     },
   });
 };
@@ -217,9 +220,12 @@ export const useRegister = () => {
 
       navigate("/dashboard", { replace: true });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("[REGISTER] Erro no registro:", error);
-      toast.error("Erro ao criar conta. Tente novamente.");
+      // Usar a mensagem de erro que vem da API
+      const errorMessage =
+        error?.message || "Erro ao criar conta. Tente novamente.";
+      toast.error(errorMessage);
     },
   });
 };
@@ -247,7 +253,7 @@ export const useLogout = () => {
       queryClient.clear();
 
       toast.success("Logout realizado com sucesso!");
-      navigate("/login");
+      navigate("/login", { replace: true });
     },
     onError: (error) => {
       console.error("Erro no logout:", error);
@@ -263,7 +269,7 @@ export const useLogout = () => {
       );
 
       queryClient.clear();
-      navigate("/login");
+      navigate("/login", { replace: true });
     },
   });
 };

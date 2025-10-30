@@ -7,8 +7,7 @@ import {
 } from "@/types/api.types";
 
 // Base da API definida no .env
-const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_URL;
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL;
 
 export interface User {
   id: string;
@@ -37,6 +36,10 @@ export interface AuthMessageResponse {
 
 class ApiAuthenticationService {
   private axiosInstance: AxiosInstance;
+  // Controle de concorrência para refresh
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<ApiResponse<{ accessToken: string }>> | null =
+    null;
 
   constructor(baseURL: string = API_BASE_URL) {
     this.axiosInstance = axios.create({
@@ -204,22 +207,42 @@ class ApiAuthenticationService {
     console.log(
       "[API Auth] Logout - cookies HttpOnly serão limpos pelo backend"
     );
-    return this.request<void>("/auth/logout", "POST", { refreshToken: "" });
+    // Sem body: backend utiliza cookies HttpOnly para limpar sessão
+    return this.request<void>("/auth/logout", "POST");
   }
 
   async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
-    // RefreshToken está em cookie HttpOnly, o backend lê automaticamente
-    const response = await this.request<{ accessToken: string }>(
-      "/auth/refresh",
-      "POST",
-      {}
-    );
+    // Lock: evita múltiplas chamadas concorrentes ao /auth/refresh
+    if (this.isRefreshing && this.refreshPromise) {
+      console.log("[API Auth] ⏳ Aguardando refresh em andamento...");
+      return this.refreshPromise;
+    }
 
-    console.log(
-      "[API Auth] Token atualizado, cookies HttpOnly gerenciados automaticamente"
-    );
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        // RefreshToken está em cookie HttpOnly; nenhuma informação no body
+        const response = await this.request<{ accessToken: string }>(
+          "/auth/refresh",
+          "POST"
+        );
+        console.log(
+          "[API Auth] Token atualizado, cookies HttpOnly gerenciados automaticamente"
+        );
+        return response;
+      } finally {
+        this.isRefreshing = false;
+        // pequena defasagem antes de limpar a promise para evitar races microtask
+        const done = this.refreshPromise;
+        setTimeout(() => {
+          if (this.refreshPromise === done) {
+            this.refreshPromise = null;
+          }
+        }, 0);
+      }
+    })();
 
-    return response;
+    return this.refreshPromise;
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
